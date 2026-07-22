@@ -334,8 +334,13 @@
 </div>
 
 <script>
-const QUESTIONS = [
-  // ---- LOW (7) ----
+// Deduplicated question bank. Each entry keeps a single canonical
+// phrasing — near-duplicate scenarios/questions from the original
+// bank (e.g. multiple "whoami", "/etc/os-release", "ssh -p 2222",
+// and "enumerate before exploiting SMB/FTP" items) were merged into
+// one representative question each.
+const QUESTIONS_RAW = [
+  // ---- LOW ----
   {
     difficulty: "LOW",
     scenario: "You've just been authorized to test the 10.10.10.0/24 range and need a fast first pass to see which hosts are even alive before committing to deeper scans.",
@@ -353,18 +358,18 @@ const QUESTIONS = [
     explain: "<b>-p-</b> tells nmap to scan all 65,535 TCP ports instead of the default top-1000 or the fast subset used by -F."
   },
   {
-difficulty:"LOW",
-scenario:"During a web application assessment, you discover port 8080 open with an unknown HTTP service.",
-q:"What should be your next action?",
-choices:[
-"Identify the service version and inspect the web application manually",
-"Launch Metasploit immediately",
-"Run Hydra against the login page",
-"Close the port using iptables"
-],
-correct:0,
-explain:"Enumeration always comes before exploitation."
-},
+    difficulty: "LOW",
+    scenario: "During a web application assessment, you discover port 8080 open with an unknown HTTP service.",
+    q: "What should be your next action?",
+    choices: [
+      "Identify the service version and inspect the web application manually",
+      "Launch Metasploit immediately",
+      "Run Hydra against the login page",
+      "Close the port using iptables"
+    ],
+    correct: 0,
+    explain: "Enumeration always comes before exploitation."
+  },
   {
     difficulty: "LOW",
     scenario: "During enumeration you find an internal server running SSH on a non-standard port, 2222, instead of the default.",
@@ -374,46 +379,99 @@ explain:"Enumeration always comes before exploitation."
     explain: "The <b>-p</b> flag tells the ssh client which TCP port to connect to on the remote host."
   },
   {
-difficulty:"LOW",
-scenario:"You are performing an internal penetration test. The client reports that an application is hosted on one of 50 Windows servers, but they don't know which one. ICMP is blocked across the network.",
-q:"What would be your first enumeration step?",
-choices:[
-"Run a TCP SYN scan against common ports such as 80,443,445 across the subnet",
-"Use ping sweep to identify live hosts",
-"Run vulnerability scripts against the whole subnet immediately",
-"Attempt SMB brute force on every host"
-],
-correct:0,
-explain:"Since ICMP is blocked, a TCP-based host discovery or SYN scan is more reliable than relying on ping."
-},
- {
-difficulty:"LOW",
-scenario:"You are performing an internal network assessment. A Linux server is responding on port 80, but before interacting with the web application, you need to identify exactly what service and version are running.",
-q:"What is the best next step?",
-choices:[
-"Run a service version scan using Nmap (-sV)",
-"Immediately launch Metasploit against the server",
-"Start a password brute-force attack",
-"Assume the service is Apache because port 80 is open"
-],
-correct:0,
-explain:"Before attempting exploitation, always identify the running service and version. Service enumeration helps determine the correct attack surface and avoids unnecessary assumptions."
-},
+    difficulty: "LOW",
+    scenario: "You are performing an internal penetration test. The client reports that an application is hosted on one of 50 Windows servers, but they don't know which one. ICMP is blocked across the network.",
+    q: "What would be your first enumeration step?",
+    choices: [
+      "Run a TCP SYN scan against common ports such as 80, 443, 445 across the subnet",
+      "Use ping sweep to identify live hosts",
+      "Run vulnerability scripts against the whole subnet immediately",
+      "Attempt SMB brute force on every host"
+    ],
+    correct: 0,
+    explain: "Since ICMP is blocked, a TCP-based host discovery or SYN scan is more reliable than relying on ping."
+  },
   {
-difficulty:"LOW",
-scenario:"While reviewing the results of a network scan, you discover that a Linux server has ports 22, 80, and 443 open. The client only requested a non-intrusive assessment at this stage.",
-q:"What should you do next?",
-choices:[
-"Enumerate the exposed services and collect version information",
-"Attempt SSH brute-force to check password strength",
-"Run all available vulnerability scripts immediately",
-"Ignore the findings because only three ports are open"
-],
-correct:0,
-explain:"The first phase of a penetration test is enumeration. Collecting service and version information allows you to understand the target before moving to any intrusive actions."
-},
+    difficulty: "LOW",
+    scenario: "You are performing an internal network assessment. A Linux server is responding on port 80, but before interacting with the web application, you need to identify exactly what service and version are running.",
+    q: "What is the best next step?",
+    choices: [
+      "Run a service version scan using Nmap (-sV)",
+      "Immediately launch Metasploit against the server",
+      "Start a password brute-force attack",
+      "Assume the service is Apache because port 80 is open"
+    ],
+    correct: 0,
+    explain: "Before attempting exploitation, always identify the running service and version. Service enumeration helps determine the correct attack surface and avoids unnecessary assumptions."
+  },
+  {
+    difficulty: "LOW",
+    scenario: "While reviewing the results of a network scan, you discover that a Linux server has ports 22, 80, and 443 open. The client only requested a non-intrusive assessment at this stage.",
+    q: "What should you do next?",
+    choices: [
+      "Enumerate the exposed services and collect version information",
+      "Attempt SSH brute-force to check password strength",
+      "Run all available vulnerability scripts immediately",
+      "Ignore the findings because only three ports are open"
+    ],
+    correct: 0,
+    explain: "The first phase of a penetration test is enumeration. Collecting service and version information allows you to understand the target before moving to any intrusive actions."
+  },
+  {
+    difficulty: "LOW",
+    scenario: "You have SSH access to a Linux server during an internal assessment. Before doing anything else, you want to identify which Linux distribution and version you're working on.",
+    q: "Which command would you use first?",
+    choices: ["cat /etc/os-release", "whoami", "pwd", "history"],
+    correct: 0,
+    explain: "/etc/os-release provides reliable operating system information including distribution name and version."
+  },
+  {
+    difficulty: "LOW",
+    scenario: "You uploaded a reconnaissance script to a Linux server, but it returns 'Permission denied' when you try to execute it.",
+    q: "What should you check first?",
+    choices: [
+      "Whether the file has execute permissions",
+      "Whether Apache is running",
+      "Whether SSH is enabled",
+      "Whether the firewall is blocking the script"
+    ],
+    correct: 0,
+    explain: "The most common cause is that the execute permission bit is not set."
+  },
+  {
+    difficulty: "LOW",
+    scenario: "During enumeration, you need to quickly identify which user account you're currently operating as.",
+    q: "Which command gives you that information?",
+    choices: ["whoami", "id -u 0", "hostname", "pwd"],
+    correct: 0,
+    explain: "whoami prints the effective username of the current session."
+  },
+  {
+    difficulty: "LOW",
+    scenario: "You discover that port 445 is open on a Windows server during enumeration.",
+    q: "Which service is most likely running?",
+    choices: ["SMB", "FTP", "DNS", "MySQL"],
+    correct: 0,
+    explain: "TCP port 445 is commonly used by Microsoft's SMB service."
+  },
+  {
+    difficulty: "LOW",
+    scenario: "You find that TCP port 3306 is open on an internal server.",
+    q: "Which service is typically running on this port?",
+    choices: ["MySQL", "SSH", "SMB", "SMTP"],
+    correct: 0,
+    explain: "3306 is the default port for MySQL."
+  },
+  {
+    difficulty: "LOW",
+    scenario: "During an authorized penetration test, the client asks you to verify whether weak SSH passwords are being used.",
+    q: "Which tool is commonly used for an online password attack against SSH?",
+    choices: ["Hydra", "Nmap", "tcpdump", "Wireshark"],
+    correct: 0,
+    explain: "Hydra is commonly used to test login services such as SSH, FTP, and HTTP during authorized security assessments."
+  },
 
-  // ---- MEDIUM (7) ----
+  // ---- MEDIUM ----
   {
     difficulty: "MEDIUM",
     scenario: "Midway through an assessment, your full connect scans start tripping the client's IDS. You still need to enumerate TCP ports on a sensitive Linux target without generating as much noise.",
@@ -424,6 +482,63 @@ explain:"The first phase of a penetration test is enumeration. Collecting servic
   },
   {
     difficulty: "MEDIUM",
+    scenario: "You need to enumerate SMB shares on a Windows server as a first pass, without attempting any exploitation or brute-forcing that could disrupt production.",
+    q: "Which approach fits that requirement?",
+    choices: ["nmap --script smb-enum-shares -p 445 target", "nmap --script smb-vuln-ms17-010 --script-args unsafe=1 target", "hydra -L users -P passwords smb://target", "msfconsole exploit/windows/smb/ms17_010_eternalblue"],
+    correct: 0,
+    explain: "<b>smb-enum-shares</b> is a discovery-category NSE script — it lists available shares without brute-forcing credentials or attempting exploitation."
+  },
+  {
+    difficulty: "MEDIUM",
+    scenario: "An FTP server allows anonymous login. After connecting successfully, you notice several directories and files.",
+    q: "What should you do first?",
+    choices: [
+      "Review accessible files and directory permissions for sensitive information",
+      "Upload a reverse shell immediately",
+      "Launch a denial-of-service attack",
+      "Assume the server is vulnerable and stop enumeration"
+    ],
+    correct: 0,
+    explain: "Anonymous FTP access often exposes backups, configuration files, or credentials. Enumeration comes before exploitation."
+  },
+  {
+    difficulty: "MEDIUM",
+    scenario: "You obtained valid SSH credentials during an internal assessment, but the client requested minimal impact on production systems.",
+    q: "What is the best initial action after logging in?",
+    choices: [
+      "Enumerate the system, users, sudo permissions, and running services",
+      "Immediately attempt privilege escalation exploits",
+      "Install additional penetration testing tools",
+      "Restart SSH to verify persistence"
+    ],
+    correct: 0,
+    explain: "A proper assessment starts with understanding the environment before attempting privilege escalation."
+  },
+  {
+    difficulty: "MEDIUM",
+    scenario: "A MySQL service is exposed on the internal network. You have valid database credentials but no information about the stored data.",
+    q: "What should you do first after connecting?",
+    choices: [
+      "Enumerate databases, tables, and user privileges",
+      "Delete temporary tables",
+      "Run SQL injection payloads against the server",
+      "Restart the MySQL service"
+    ],
+    correct: 0,
+    explain: "Database enumeration helps identify sensitive data, application databases, and excessive user privileges."
+  },
+  {
+    difficulty: "MEDIUM",
+    scenario: "While enumerating a compromised Linux server, you want to identify services that are currently listening for incoming network connections.",
+    q: "Which command provides this information?",
+    choices: ["ss -tulnp", "ls -la", "pwd", "history"],
+    correct: 0,
+    explain: "The 'ss -tulnp' command displays listening TCP/UDP ports along with the associated processes, making it an essential enumeration step."
+  },
+
+  // ---- HARD ----
+  {
+    difficulty: "HARD",
     scenario: "While sniffing on an internal LAN, you notice two different hosts suddenly show the same MAC address in your ARP table shortly after starting your capture.",
     q: "What does this pattern most likely indicate?",
     choices: ["An ARP spoofing / MITM attack redirecting traffic through one host", "A routine DHCP lease renewal", "Normal switch behavior with no security relevance", "DNS cache poisoning on the client"],
@@ -431,146 +546,54 @@ explain:"The first phase of a penetration test is enumeration. Collecting servic
     explain: "One MAC address suddenly claiming multiple IPs is the classic signature of <b>ARP cache poisoning</b>, used to position an attacker for a man-in-the-middle."
   },
   {
-difficulty:"LOW",
-scenario:"You have SSH access to a Linux server during an internal assessment. Before doing anything else, you want to identify which Linux distribution and version you're working on.",
-q:"Which command would you use first?",
-choices:[
-"cat /etc/os-release",
-"whoami",
-"pwd",
-"history"
-],
-correct:0,
-explain:"/etc/os-release provides reliable operating system information including distribution name and version."
-},
-  {
-difficulty:"LOW",
-scenario:"You uploaded a reconnaissance script to a Linux server, but it returns 'Permission denied' when you try to execute it.",
-q:"What should you check first?",
-choices:[
-"Whether the file has execute permissions",
-"Whether Apache is running",
-"Whether SSH is enabled",
-"Whether the firewall is blocking the script"
-],
-correct:0,
-explain:"The most common cause is that the execute permission bit is not set."
-},
-  {
-difficulty:"LOW",
-scenario:"During enumeration, you need to quickly identify which user account you're currently operating as.",
-q:"Which command gives you that information?",
-choices:[
-"whoami",
-"id -u 0",
-"hostname",
-"pwd"
-],
-correct:0,
-explain:"whoami prints the effective username of the current session."
-},
-  {
-difficulty:"MEDIUM",
-scenario:"While reviewing a Linux system, you notice that a writable directory appears before /usr/bin in the PATH environment variable.",
-q:"Why is this important during a security assessment?",
-choices:[
-"It may allow PATH hijacking if privileged programs execute commands without absolute paths",
-"It improves system performance",
-"It prevents privilege escalation",
-"It disables symbolic links"
-],
-correct:0,
-explain:"PATH hijacking is possible when privileged programs rely on PATH instead of absolute executable paths."
-},
-  {
-    difficulty: "MEDIUM",
-    scenario: "You need to enumerate SMB shares on a Windows server as a first pass, without attempting any exploitation or brute-forcing that could disrupt production.",
-    q: "Which approach fits that requirement?",
-    choices: ["nmap --script smb-enum-shares -p 445 target", "nmap --script smb-vuln-ms17-010 --script-args unsafe=1 target", "hydra -L users -P passwords smb://target", "msfconsole exploit/windows/smb/ms17_010_eternalblue"],
+    difficulty: "HARD",
+    scenario: "While reviewing a Linux system, you notice that a writable directory appears before /usr/bin in the PATH environment variable.",
+    q: "Why is this important during a security assessment?",
+    choices: [
+      "It may allow PATH hijacking if privileged programs execute commands without absolute paths",
+      "It improves system performance",
+      "It prevents privilege escalation",
+      "It disables symbolic links"
+    ],
     correct: 0,
-    explain: "<b>smb-enum-shares</b> is a discovery-category NSE script — it lists available shares without brute-forcing credentials or attempting exploitation."
+    explain: "PATH hijacking is possible when privileged programs rely on PATH instead of absolute executable paths."
   },
-
-  // ---- HARD (6) ----
-{
-difficulty:"MEDIUM",
-scenario:"During an internal penetration test, you discover that TCP port 445 is open on a Windows file server. The client requested enumeration only, without attempting exploitation.",
-q:"What is the most appropriate next step?",
-choices:[
-"Enumerate available SMB shares and permissions",
-"Run EternalBlue immediately",
-"Brute-force SMB credentials using Hydra",
-"Disable SMB signing on the server"
-],
-correct:0,
-explain:"The first step is to enumerate available shares, permissions, and accessible resources before considering any exploitation."
-},
- {
-difficulty:"MEDIUM",
-scenario:"An FTP server allows anonymous login. After connecting successfully, you notice several directories and files.",
-q:"What should you do first?",
-choices:[
-"Review accessible files and directory permissions for sensitive information",
-"Upload a reverse shell immediately",
-"Launch a denial-of-service attack",
-"Assume the server is vulnerable and stop enumeration"
-],
-correct:0,
-explain:"Anonymous FTP access often exposes backups, configuration files, or credentials. Enumeration comes before exploitation."
-},
   {
-difficulty:"MEDIUM",
-scenario:"You obtained valid SSH credentials during an internal assessment, but the client requested minimal impact on production systems.",
-q:"What is the best initial action after logging in?",
-choices:[
-"Enumerate the system, users, sudo permissions, and running services",
-"Immediately attempt privilege escalation exploits",
-"Install additional penetration testing tools",
-"Restart SSH to verify persistence"
-],
-correct:0,
-explain:"A proper assessment starts with understanding the environment before attempting privilege escalation."
-},
- {
-difficulty:"MEDIUM",
-scenario:"A MySQL service is exposed on the internal network. You have valid database credentials but no information about the stored data.",
-q:"What should you do first after connecting?",
-choices:[
-"Enumerate databases, tables, and user privileges",
-"Delete temporary tables",
-"Run SQL injection payloads against the server",
-"Restart the MySQL service"
-],
-correct:0,
-explain:"Database enumeration helps identify sensitive data, application databases, and excessive user privileges."
-},
- {
-difficulty:"MEDIUM",
-scenario:"While enumerating a compromised Linux server, you want to identify services that are currently listening for incoming network connections.",
-q:"Which command provides this information?",
-choices:[
-"ss -tulnp",
-"ls -la",
-"pwd",
-"history"
-],
-correct:0,
-explain:"The 'ss -tulnp' command displays listening TCP/UDP ports along with the associated processes, making it an essential enumeration step."
-},
- {
-difficulty:"MEDIUM",
-scenario:"You gained access to a Linux server as a low-privileged user. The engagement allows privilege escalation testing if performed safely.",
-q:"Which check is most valuable early in your enumeration?",
-choices:[
-"Look for SUID binaries that may allow privilege escalation",
-"Delete old log files",
-"Restart the SSH service",
-"Flush all iptables rules"
-],
-correct:0,
-explain:"Misconfigured SUID binaries are one of the most common Linux privilege escalation vectors."
-}
+    difficulty: "HARD",
+    scenario: "You gained access to a Linux server as a low-privileged user. The engagement allows privilege escalation testing if performed safely.",
+    q: "Which check is most valuable early in your enumeration?",
+    choices: [
+      "Look for SUID binaries that may allow privilege escalation",
+      "Delete old log files",
+      "Restart the SSH service",
+      "Flush all iptables rules"
+    ],
+    correct: 0,
+    explain: "Misconfigured SUID binaries are one of the most common Linux privilege escalation vectors."
+  }
 ];
+
+// Shuffle helper (Fisher-Yates)
+function shuffleArray(arr){
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Build the runtime question list with choices shuffled per-question,
+// so the correct answer isn't always in the same position (e.g. "A").
+const QUESTIONS = QUESTIONS_RAW.map(item => {
+  const correctText = item.choices[item.correct];
+  const shuffledChoices = shuffleArray(item.choices);
+  return {
+    ...item,
+    choices: shuffledChoices,
+    correct: shuffledChoices.indexOf(correctText)
+  };
+});
 
 let current = 0;
 let answers = new Array(QUESTIONS.length).fill(null);
