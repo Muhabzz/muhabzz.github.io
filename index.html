@@ -353,13 +353,18 @@ const QUESTIONS = [
     explain: "<b>-p-</b> tells nmap to scan all 65,535 TCP ports instead of the default top-1000 or the fast subset used by -F."
   },
   {
-    difficulty: "LOW",
-    scenario: "You're sniffing on a client's guest Wi-Fi and only care about traffic involving one specific workstation, 192.168.1.50, to keep the capture readable.",
-    q: "Which tcpdump filter isolates traffic to and from that single host?",
-    choices: ["tcpdump host 192.168.1.50", "tcpdump src port 50", "tcpdump icmp", "tcpdump -X"],
-    correct: 0,
-    explain: "<b>host 192.168.1.50</b> matches packets where that IP is either the source or destination, filtering out unrelated noise."
-  },
+difficulty:"LOW",
+scenario:"During a web application assessment, you discover port 8080 open with an unknown HTTP service.",
+q:"What should be your next action?",
+choices:[
+"Identify the service version and inspect the web application manually",
+"Launch Metasploit immediately",
+"Run Hydra against the login page",
+"Close the port using iptables"
+],
+correct:0,
+explain:"Enumeration always comes before exploitation."
+},
   {
     difficulty: "LOW",
     scenario: "During enumeration you find an internal server running SSH on a non-standard port, 2222, instead of the default.",
@@ -369,29 +374,44 @@ const QUESTIONS = [
     explain: "The <b>-p</b> flag tells the ssh client which TCP port to connect to on the remote host."
   },
   {
-    difficulty: "LOW",
-    scenario: "Before you start actively scanning, you want to double-check which services are already listening on your own Kali box so you don't confuse your traffic with the engagement's.",
-    q: "Which command lists listening TCP/UDP sockets along with the owning process?",
-    choices: ["ss -tulnp", "ip link show", "iptables -F", "history | grep ssh"],
-    correct: 0,
-    explain: "<b>ss -tulnp</b> shows TCP and UDP listening sockets plus the process bound to each — useful for a quick self-check."
-  },
+difficulty:"LOW",
+scenario:"You are performing an internal penetration test. The client reports that an application is hosted on one of 50 Windows servers, but they don't know which one. ICMP is blocked across the network.",
+q:"What would be your first enumeration step?",
+choices:[
+"Run a TCP SYN scan against common ports such as 80,443,445 across the subnet",
+"Use ping sweep to identify live hosts",
+"Run vulnerability scripts against the whole subnet immediately",
+"Attempt SMB brute force on every host"
+],
+correct:0,
+explain:"Since ICMP is blocked, a TCP-based host discovery or SYN scan is more reliable than relying on ping."
+},
+ {
+difficulty:"LOW",
+scenario:"You are performing an internal network assessment. A Linux server is responding on port 80, but before interacting with the web application, you need to identify exactly what service and version are running.",
+q:"What is the best next step?",
+choices:[
+"Run a service version scan using Nmap (-sV)",
+"Immediately launch Metasploit against the server",
+"Start a password brute-force attack",
+"Assume the service is Apache because port 80 is open"
+],
+correct:0,
+explain:"Before attempting exploitation, always identify the running service and version. Service enumeration helps determine the correct attack surface and avoids unnecessary assumptions."
+},
   {
-    difficulty: "LOW",
-    scenario: "The client suspects their internal DNS still resolves an old, decommissioned hostname to a server that should no longer respond.",
-    q: "What's the quickest way to confirm what that hostname currently resolves to on their internal DNS server?",
-    choices: ["dig internal.host.local @internal-dns-ip", "ping -c 1 8.8.8.8", "nmap -sV internal-dns-ip", "netstat -a"],
-    correct: 0,
-    explain: "Querying with <b>dig hostname @dns-server</b> directly asks that specific DNS server how it currently resolves the name."
-  },
-  {
-    difficulty: "LOW",
-    scenario: "You want to record a full packet capture on eth0 to review later in Wireshark, without cluttering your terminal with live output.",
-    q: "Which command correctly saves the raw capture to a file for later analysis?",
-    choices: ["tcpdump -i eth0 -w capture.pcap", "tcpdump -i eth0 -r capture.pcap", "tcpdump -i eth0 > /dev/null", "wireshark -w capture.pcap"],
-    correct: 0,
-    explain: "<b>-w</b> writes the raw captured packets to a file; <b>-r</b> is used later to read a saved capture back, not create one."
-  },
+difficulty:"LOW",
+scenario:"While reviewing the results of a network scan, you discover that a Linux server has ports 22, 80, and 443 open. The client only requested a non-intrusive assessment at this stage.",
+q:"What should you do next?",
+choices:[
+"Enumerate the exposed services and collect version information",
+"Attempt SSH brute-force to check password strength",
+"Run all available vulnerability scripts immediately",
+"Ignore the findings because only three ports are open"
+],
+correct:0,
+explain:"The first phase of a penetration test is enumeration. Collecting service and version information allows you to understand the target before moving to any intrusive actions."
+},
 
   // ---- MEDIUM (7) ----
   {
@@ -411,37 +431,57 @@ const QUESTIONS = [
     explain: "One MAC address suddenly claiming multiple IPs is the classic signature of <b>ARP cache poisoning</b>, used to position an attacker for a man-in-the-middle."
   },
   {
-    difficulty: "MEDIUM",
-    scenario: "You've compromised a Linux host that can reach an internal 10.50.0.0/24 subnet, but your Kali box has no route to it. You want to run nmap from Kali against that subnet through the compromised host.",
-    q: "Which setup lets your existing tools on Kali reach that subnet through the compromised host?",
-    choices: ["Set up ssh -D on the compromised host, then run nmap through proxychains on Kali", "Run nmap directly from Kali with no changes", "Use netcat to forward ICMP packets only", "Install nmap on the compromised host and only review results manually, with no pivot"],
-    correct: 0,
-    explain: "<b>ssh -D</b> creates a dynamic SOCKS proxy on the compromised host; wrapping nmap with <b>proxychains</b> on Kali routes its traffic through that tunnel into the otherwise unreachable subnet."
-  },
+difficulty:"LOW",
+scenario:"You have SSH access to a Linux server during an internal assessment. Before doing anything else, you want to identify which Linux distribution and version you're working on.",
+q:"Which command would you use first?",
+choices:[
+"cat /etc/os-release",
+"whoami",
+"pwd",
+"history"
+],
+correct:0,
+explain:"/etc/os-release provides reliable operating system information including distribution name and version."
+},
   {
-    difficulty: "MEDIUM",
-    scenario: "During a capture review, you notice a steady stream of retransmitted segments toward a web app running on port 8443.",
-    q: "Which Wireshark display filter isolates exactly those retransmitted packets so you can confirm packet loss is the cause?",
-    choices: ["tcp.analysis.retransmission", "http.request.method==\"GET\"", "dns.qry.name contains \"target\"", "ip.ttl==64"],
-    correct: 0,
-    explain: "<b>tcp.analysis.retransmission</b> uses Wireshark's built-in TCP analysis to surface segments it has flagged as retransmitted."
-  },
+difficulty:"LOW",
+scenario:"You uploaded a reconnaissance script to a Linux server, but it returns 'Permission denied' when you try to execute it.",
+q:"What should you check first?",
+choices:[
+"Whether the file has execute permissions",
+"Whether Apache is running",
+"Whether SSH is enabled",
+"Whether the firewall is blocking the script"
+],
+correct:0,
+explain:"The most common cause is that the execute permission bit is not set."
+},
   {
-    difficulty: "MEDIUM",
-    scenario: "As part of a segmentation test, you need traffic to route from a DMZ segment into an internal segment through a compromised Linux box with two network interfaces. IP forwarding is already enabled on that box.",
-    q: "Which additional configuration is required for that box to actually pass the traffic between interfaces?",
-    choices: ["Allow the traffic in the FORWARD chain between both interfaces", "Only edit the INPUT chain", "Only edit the OUTPUT chain", "Flush all iptables rules and stop there"],
-    correct: 0,
-    explain: "The <b>FORWARD</b> chain governs traffic that is routed through a Linux box rather than delivered to or generated by local processes — it must explicitly allow the traffic for routing to work."
-  },
+difficulty:"LOW",
+scenario:"During enumeration, you need to quickly identify which user account you're currently operating as.",
+q:"Which command gives you that information?",
+choices:[
+"whoami",
+"id -u 0",
+"hostname",
+"pwd"
+],
+correct:0,
+explain:"whoami prints the effective username of the current session."
+},
   {
-    difficulty: "MEDIUM",
-    scenario: "You capture a Windows workstation on the LAN broadcasting a name-resolution request for a mistyped internal file share.",
-    q: "Which technique lets you capture the resulting authentication attempt from a Linux attack box?",
-    choices: ["Run Responder to poison the LLMNR/NBT-NS request and capture the hash", "Run nmap -sV against the workstation", "Query the hostname with dig", "Filter the traffic with tcpdump using only an ARP filter"],
-    correct: 0,
-    explain: "<b>Responder</b> listens for and answers broadcast name-resolution protocols like LLMNR and NBT-NS, tricking the host into authenticating to the attacker and revealing a crackable hash."
-  },
+difficulty:"MEDIUM",
+scenario:"While reviewing a Linux system, you notice that a writable directory appears before /usr/bin in the PATH environment variable.",
+q:"Why is this important during a security assessment?",
+choices:[
+"It may allow PATH hijacking if privileged programs execute commands without absolute paths",
+"It improves system performance",
+"It prevents privilege escalation",
+"It disables symbolic links"
+],
+correct:0,
+explain:"PATH hijacking is possible when privileged programs rely on PATH instead of absolute executable paths."
+},
   {
     difficulty: "MEDIUM",
     scenario: "You need to enumerate SMB shares on a Windows server as a first pass, without attempting any exploitation or brute-forcing that could disrupt production.",
@@ -452,54 +492,84 @@ const QUESTIONS = [
   },
 
   // ---- HARD (6) ----
+{
+difficulty:"MEDIUM",
+scenario:"During an internal penetration test, you discover that TCP port 445 is open on a Windows file server. The client requested enumeration only, without attempting exploitation.",
+q:"What is the most appropriate next step?",
+choices:[
+"Enumerate available SMB shares and permissions",
+"Run EternalBlue immediately",
+"Brute-force SMB credentials using Hydra",
+"Disable SMB signing on the server"
+],
+correct:0,
+explain:"The first step is to enumerate available shares, permissions, and accessible resources before considering any exploitation."
+},
+ {
+difficulty:"MEDIUM",
+scenario:"An FTP server allows anonymous login. After connecting successfully, you notice several directories and files.",
+q:"What should you do first?",
+choices:[
+"Review accessible files and directory permissions for sensitive information",
+"Upload a reverse shell immediately",
+"Launch a denial-of-service attack",
+"Assume the server is vulnerable and stop enumeration"
+],
+correct:0,
+explain:"Anonymous FTP access often exposes backups, configuration files, or credentials. Enumeration comes before exploitation."
+},
   {
-    difficulty: "HARD",
-    scenario: "You have a foothold on a dual-homed Linux host bridging a DMZ and an internal segment, and you want all of your proxychains-wrapped tools — not just one port — to reach hosts in that internal segment.",
-    q: "Which setup achieves this general-purpose pivot?",
-    choices: ["ssh -D 1080 user@dmz-host, then point proxychains at socks5 127.0.0.1 1080", "ssh -L 1080:internal-host:445 user@dmz-host only", "ssh -R 1080 user@dmz-host", "scp tools to the dmz-host and only run them locally there"],
-    correct: 0,
-    explain: "<b>-D</b> creates a dynamic SOCKS proxy that any proxychains-wrapped tool can route arbitrary traffic through, unlike <b>-L</b> which only forwards one fixed destination/port."
-  },
-  {
-    difficulty: "HARD",
-    scenario: "While mapping the path to a target, hop 7 in your trace consistently fails to respond while hops 6 and 8 both reply normally.",
-    q: "What's the most defensible interpretation of this pattern?",
-    choices: ["Hop 7's device is likely filtering or rate-limiting the probe traffic, not necessarily offline", "Hop 7 is definitely down", "The network doesn't exist past hop 6", "Your local NIC is misconfigured"],
-    correct: 0,
-    explain: "Many routers and firewalls deprioritize or drop the ICMP/UDP probes traceroute relies on, or rate-limit their responses, causing a 'silent' hop even though the device is up and still forwarding traffic."
-  },
-  {
-    difficulty: "HARD",
-    scenario: "You're enumerating an internal Windows domain during business hours and want to avoid account lockouts or service crashes on production systems.",
-    q: "Which categories of nmap NSE scripts should you explicitly avoid running against production in this scenario?",
-    choices: ["brute and vuln/dos categories", "discovery scripts only", "default scripts only", "safe scripts only"],
-    correct: 0,
-    explain: "<b>brute</b>-force scripts risk account lockouts, and <b>vuln/dos</b> scripts risk crashing services — both carry real operational risk against live production systems, unlike lower-risk discovery/safe scripts."
-  },
-  {
-    difficulty: "HARD",
-    scenario: "On a compromised Linux pivot box, you've enabled ip_forward and added FORWARD rules allowing traffic between eth0 (DMZ) and eth1 (internal). Pivoted hosts still can't reach the internal subnet.",
-    q: "What's the most likely remaining misconfiguration?",
-    choices: ["A missing return route on the internal subnet's gateway back to the DMZ (asymmetric routing)", "SSH is using the wrong port", "Wireshark isn't capturing on the pivot box", "nmap isn't installed on the pivot box"],
-    correct: 0,
-    explain: "Routing has to work in both directions — if the internal gateway has no route back toward the DMZ segment, replies never make it back through the pivot even though forwarding rules are correct."
-  },
-  {
-    difficulty: "HARD",
-    scenario: "Reviewing a capture, you see a short burst of ARP requests from many different spoofed source MAC addresses, each requesting a different IP on the same LAN segment.",
-    q: "What attack does this traffic pattern most likely represent?",
-    choices: ["A MAC flooding / CAM table overflow attack aimed at forcing the switch into hub mode", "A normal DHCP broadcast storm", "A legitimate ARP cache refresh cycle", "A DNS amplification attack"],
-    correct: 0,
-    explain: "Flooding a switch with many spoofed source MACs is a classic technique to overflow its CAM table, causing it to fail open and broadcast traffic to every port instead of switching normally."
-  },
-  {
-    difficulty: "HARD",
-    scenario: "You want to test whether a target's edge firewall strips ICMP but still forwards other manually crafted probe types, to map its filtering behavior more precisely than a standard ping would show.",
-    q: "Which tool is best suited for hand-crafting and sending custom TCP/UDP/ICMP packets for this test?",
-    choices: ["hping3", "grep", "chmod", "useradd"],
-    correct: 0,
-    explain: "<b>hping3</b> lets you manually construct packets across protocols with custom flags, letting you probe firewall behavior far more precisely than a standard ping or traceroute."
-  }
+difficulty:"MEDIUM",
+scenario:"You obtained valid SSH credentials during an internal assessment, but the client requested minimal impact on production systems.",
+q:"What is the best initial action after logging in?",
+choices:[
+"Enumerate the system, users, sudo permissions, and running services",
+"Immediately attempt privilege escalation exploits",
+"Install additional penetration testing tools",
+"Restart SSH to verify persistence"
+],
+correct:0,
+explain:"A proper assessment starts with understanding the environment before attempting privilege escalation."
+},
+ {
+difficulty:"MEDIUM",
+scenario:"A MySQL service is exposed on the internal network. You have valid database credentials but no information about the stored data.",
+q:"What should you do first after connecting?",
+choices:[
+"Enumerate databases, tables, and user privileges",
+"Delete temporary tables",
+"Run SQL injection payloads against the server",
+"Restart the MySQL service"
+],
+correct:0,
+explain:"Database enumeration helps identify sensitive data, application databases, and excessive user privileges."
+},
+ {
+difficulty:"MEDIUM",
+scenario:"While enumerating a compromised Linux server, you want to identify services that are currently listening for incoming network connections.",
+q:"Which command provides this information?",
+choices:[
+"ss -tulnp",
+"ls -la",
+"pwd",
+"history"
+],
+correct:0,
+explain:"The 'ss -tulnp' command displays listening TCP/UDP ports along with the associated processes, making it an essential enumeration step."
+},
+ {
+difficulty:"MEDIUM",
+scenario:"You gained access to a Linux server as a low-privileged user. The engagement allows privilege escalation testing if performed safely.",
+q:"Which check is most valuable early in your enumeration?",
+choices:[
+"Look for SUID binaries that may allow privilege escalation",
+"Delete old log files",
+"Restart the SSH service",
+"Flush all iptables rules"
+],
+correct:0,
+explain:"Misconfigured SUID binaries are one of the most common Linux privilege escalation vectors."
+}
 ];
 
 let current = 0;
