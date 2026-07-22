@@ -730,7 +730,6 @@ function renderResults(){
       <div class="verdict">${verdict}</div>
       <button class="review-toggle" id="reviewToggle">$ ./quiz --show-review</button>
       <div class="review-list" id="reviewList">${reviewHTML}</div>
-      <button class="restart-btn" id="restartBtn">$ ./quiz --restart</button>
     </div>
   `;
 
@@ -739,13 +738,6 @@ function renderResults(){
     const btn = document.getElementById("reviewToggle");
     const isShown = list.classList.toggle("show");
     btn.textContent = isShown ? "$ ./quiz --hide-review" : "$ ./quiz --show-review";
-  });
-
-  document.getElementById("restartBtn").addEventListener("click", () => {
-    current = 0;
-    answers = new Array(QUESTIONS.length).fill(null);
-    submitted = false;
-    renderQuestion();
   });
 }
 
