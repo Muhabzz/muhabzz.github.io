@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>net::recon — Linux Network Pentesting Quiz</title>
+<title>INSTANT-SW-Quiz — Linux Network Pentesting</title>
 <style>
   :root{
     --bg: #0a0e10;
@@ -65,7 +65,9 @@
     font-size: 12px;
     color: var(--muted);
     letter-spacing: 0.5px;
+    font-weight: 700;
   }
+  .term-title b{ color: var(--prompt); }
 
   .term-body{ padding: 22px 24px 26px; }
 
@@ -101,8 +103,8 @@
     border-radius: 2px;
     overflow:hidden;
   }
-  .packet.sent{ background: var(--prompt); }
-  .packet.wrong{ background: var(--hard); }
+  .packet.answered{ background: var(--prompt); opacity: 0.55; }
+  .packet.current{ background: var(--prompt); opacity: 1; }
 
   .prompt-line{
     color: var(--prompt);
@@ -112,11 +114,21 @@
   .prompt-line .path{ color: #6ee7b7; }
   .prompt-line .cmd{ color: var(--text); }
 
+  .scenario{
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #a9b8bf;
+    background: rgba(255,255,255,0.02);
+    border-left: 2px solid var(--muted);
+    padding: 10px 12px;
+    margin: 10px 0 14px;
+  }
+
   h1.q{
-    font-size: 16px;
+    font-size: 15.5px;
     line-height: 1.55;
     font-weight: 500;
-    margin: 6px 0 20px;
+    margin: 0 0 20px;
     color: var(--text);
   }
 
@@ -137,7 +149,7 @@
     align-items:flex-start;
     transition: border-color .15s, background .15s, transform .1s;
   }
-  .choice:hover:not(.locked){
+  .choice:hover{
     border-color: #33424b;
     background:#161f25;
     transform: translateX(2px);
@@ -146,6 +158,11 @@
     color: var(--muted);
     flex-shrink:0;
   }
+  .choice.selected{
+    border-color: var(--prompt);
+    background: rgba(57,217,138,0.08);
+  }
+
   .choice.correct{
     border-color: var(--low);
     background: rgba(45,212,191,0.08);
@@ -154,20 +171,19 @@
     border-color: var(--hard);
     background: rgba(239,69,101,0.08);
   }
-  .choice.locked{ cursor:default; }
   .choice.dim{ opacity: 0.45; }
+  .choice.static{ cursor:default; }
+  .choice.static:hover{ transform:none; background: var(--panel-2); border-color: var(--border); }
 
   .explain{
-    margin-top: 16px;
+    margin-top: 14px;
     padding: 12px 14px;
     border-left: 2px solid var(--muted);
     background: rgba(255,255,255,0.02);
     font-size: 12.5px;
     line-height: 1.6;
     color: #a9b8bf;
-    display:none;
   }
-  .explain.show{ display:block; }
   .explain b{ color: var(--text); }
 
   .footer-row{
@@ -180,22 +196,34 @@
   .score-mini{ font-size: 12px; color: var(--muted); }
   .score-mini b{ color: var(--text); }
 
-  .next-btn{
+  .nav-btns{ display:flex; gap:8px; }
+
+  .btn{
     background: transparent;
-    border: 1px solid var(--prompt);
-    color: var(--prompt);
+    border: 1px solid var(--border);
+    color: var(--muted);
     font-family: var(--mono);
     font-size: 12.5px;
     padding: 8px 16px;
     border-radius: 5px;
     cursor:pointer;
     letter-spacing: 0.5px;
-    opacity: 0;
-    pointer-events:none;
-    transition: opacity .2s;
+    transition: opacity .2s, border-color .2s, color .2s;
   }
-  .next-btn.show{ opacity: 1; pointer-events:auto; }
-  .next-btn:hover{ background: rgba(57,217,138,0.1); }
+  .btn:hover{ border-color: #3a4650; color: var(--text); }
+  .btn:disabled{ opacity: 0.3; cursor: not-allowed; }
+
+  .next-btn{
+    border: 1px solid var(--prompt);
+    color: var(--prompt);
+  }
+  .next-btn:hover{ background: rgba(57,217,138,0.1); color: var(--prompt); }
+
+  .submit-btn{
+    border: 1px solid var(--hard);
+    color: var(--hard);
+  }
+  .submit-btn:hover{ background: rgba(239,69,101,0.1); color: var(--hard); }
 
   /* results screen */
   .results h2{
@@ -221,6 +249,54 @@
   .brow .bar-fill{ height:100%; border-radius:4px; }
   .brow .count{ width: 44px; text-align:right; color: var(--muted); }
 
+  .verdict{
+    font-size: 12.5px;
+    color: #a9b8bf;
+    line-height: 1.6;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.02);
+    border-left: 2px solid var(--prompt);
+    margin-bottom: 22px;
+  }
+
+  .review-toggle{
+    width:100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 12px;
+    border-radius: 6px;
+    cursor:pointer;
+    margin-bottom: 10px;
+  }
+  .review-toggle:hover{ border-color: var(--prompt); color: var(--prompt); }
+
+  .review-list{ display:none; flex-direction:column; gap:14px; margin: 16px 0; }
+  .review-list.show{ display:flex; }
+
+  .review-item{
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    background: var(--panel-2);
+  }
+  .review-item .rhead{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .review-item .rq{ font-size: 13px; margin-bottom: 8px; color: var(--text); }
+  .review-item .ryour{ font-size: 12px; margin-bottom: 4px; }
+  .review-item .rcorrect{ font-size: 12px; margin-bottom: 8px; }
+  .review-item .rexplain{ font-size: 12px; color: #a9b8bf; line-height: 1.5; }
+  .status-ok{ color: var(--low); }
+  .status-bad{ color: var(--hard); }
+
   .restart-btn{
     width:100%;
     margin-top: 8px;
@@ -235,23 +311,13 @@
   }
   .restart-btn:hover{ border-color: var(--prompt); color: var(--prompt); }
 
-  .verdict{
-    font-size: 12.5px;
-    color: #a9b8bf;
-    line-height: 1.6;
-    padding: 12px 14px;
-    background: rgba(255,255,255,0.02);
-    border-left: 2px solid var(--prompt);
-    margin-bottom: 4px;
-  }
-
   @media (prefers-reduced-motion: reduce){
-    .choice, .next-btn, .dot{ transition:none; }
+    .choice, .btn, .dot{ transition:none; }
   }
 
   @media (max-width: 480px){
     .term-body{ padding: 18px 16px 22px; }
-    h1.q{ font-size: 14.5px; }
+    h1.q{ font-size: 14px; }
   }
 </style>
 </head>
@@ -262,7 +328,7 @@
     <div class="dot d1" id="dot1"></div>
     <div class="dot d2" id="dot2"></div>
     <div class="dot d3" id="dot3"></div>
-    <div class="term-title">root@kali: ~/network-pentest-quiz</div>
+    <div class="term-title"><b>INSTANT-SW-Quiz</b> — root@kali: ~/network-pentest-scenarios</div>
   </div>
   <div class="term-body" id="termBody"></div>
 </div>
@@ -272,160 +338,178 @@ const QUESTIONS = [
   // ---- LOW (7) ----
   {
     difficulty: "LOW",
-    q: "Which command-line tool is the standard choice for scanning open ports on a target host?",
-    choices: ["nmap", "grep", "chmod", "curl"],
+    scenario: "You've just been authorized to test the 10.10.10.0/24 range and need a fast first pass to see which hosts are even alive before committing to deeper scans.",
+    q: "Which nmap command gives you the quickest list of live hosts without scanning any ports yet?",
+    choices: ["nmap -sn 10.10.10.0/24", "nmap -sS -p- 10.10.10.0/24", "nmap --script vuln 10.10.10.0/24", "nmap -sU -p 1-65535 10.10.10.0/24"],
     correct: 0,
-    explain: "<b>nmap</b> (Network Mapper) is the de facto standard for host discovery and port scanning during the reconnaissance phase of a penetration test."
+    explain: "<b>-sn</b> disables port scanning and performs host discovery only (ping sweep), making it ideal for a fast initial pass across a whole subnet."
   },
   {
     difficulty: "LOW",
-    q: "What does the acronym ARP stand for?",
-    choices: ["Active Routing Protocol", "Address Resolution Protocol", "Adaptive Relay Path", "Application Routing Policy"],
-    correct: 1,
-    explain: "<b>Address Resolution Protocol</b> maps a known IP address to its corresponding MAC address on a local network segment."
-  },
-  {
-    difficulty: "LOW",
-    q: "Which command displays the current IP routing table on a modern Linux system?",
-    choices: ["ip route", "cat /etc/passwd", "dig -x", "chmod 777"],
+    scenario: "A client hands you a single IP and says 'we don't know what's running on it — check everything.'",
+    q: "Which nmap flag ensures you scan the full TCP port range instead of just the common ones?",
+    choices: ["-p-", "-F", "--top-ports 100", "-T4 only"],
     correct: 0,
-    explain: "<b>ip route</b> (part of iproute2) shows the kernel routing table, replacing the older <b>route</b> command."
+    explain: "<b>-p-</b> tells nmap to scan all 65,535 TCP ports instead of the default top-1000 or the fast subset used by -F."
   },
   {
     difficulty: "LOW",
-    q: "By default, which TCP port does the SSH service listen on?",
-    choices: ["21", "22", "23", "443"],
-    correct: 1,
-    explain: "SSH listens on <b>TCP/22</b> by default. Port 21 is FTP, 23 is Telnet, and 443 is HTTPS."
-  },
-  {
-    difficulty: "LOW",
-    q: "Which tool provides a graphical interface for capturing and inspecting live network packets?",
-    choices: ["Wireshark", "Nano", "htop", "VLC"],
+    scenario: "You're sniffing on a client's guest Wi-Fi and only care about traffic involving one specific workstation, 192.168.1.50, to keep the capture readable.",
+    q: "Which tcpdump filter isolates traffic to and from that single host?",
+    choices: ["tcpdump host 192.168.1.50", "tcpdump src port 50", "tcpdump icmp", "tcpdump -X"],
     correct: 0,
-    explain: "<b>Wireshark</b> lets analysts capture traffic and drill into individual packets, protocols, and conversations."
+    explain: "<b>host 192.168.1.50</b> matches packets where that IP is either the source or destination, filtering out unrelated noise."
   },
   {
     difficulty: "LOW",
-    q: "Which modern command shows active sockets and listening ports on Linux?",
-    choices: ["ss", "ps aux", "top", "history"],
+    scenario: "During enumeration you find an internal server running SSH on a non-standard port, 2222, instead of the default.",
+    q: "Which command lets you connect to test credentials against that service?",
+    choices: ["ssh -p 2222 user@target", "ssh -L 2222 user@target", "ssh -o Port=22 user@target", "ssh user@target:2222"],
     correct: 0,
-    explain: "<b>ss</b> (socket statistics) is the modern replacement for <b>netstat</b>, showing open connections and listening services."
+    explain: "The <b>-p</b> flag tells the ssh client which TCP port to connect to on the remote host."
   },
   {
     difficulty: "LOW",
-    q: "Which local file can be used to manually map a hostname to an IP address, bypassing DNS?",
-    choices: ["/etc/hosts", "/etc/passwd", "/etc/shadow", "/etc/fstab"],
+    scenario: "Before you start actively scanning, you want to double-check which services are already listening on your own Kali box so you don't confuse your traffic with the engagement's.",
+    q: "Which command lists listening TCP/UDP sockets along with the owning process?",
+    choices: ["ss -tulnp", "ip link show", "iptables -F", "history | grep ssh"],
     correct: 0,
-    explain: "<b>/etc/hosts</b> is checked before DNS resolution and is often edited during engagements to pin a hostname to a specific target IP."
+    explain: "<b>ss -tulnp</b> shows TCP and UDP listening sockets plus the process bound to each — useful for a quick self-check."
+  },
+  {
+    difficulty: "LOW",
+    scenario: "The client suspects their internal DNS still resolves an old, decommissioned hostname to a server that should no longer respond.",
+    q: "What's the quickest way to confirm what that hostname currently resolves to on their internal DNS server?",
+    choices: ["dig internal.host.local @internal-dns-ip", "ping -c 1 8.8.8.8", "nmap -sV internal-dns-ip", "netstat -a"],
+    correct: 0,
+    explain: "Querying with <b>dig hostname @dns-server</b> directly asks that specific DNS server how it currently resolves the name."
+  },
+  {
+    difficulty: "LOW",
+    scenario: "You want to record a full packet capture on eth0 to review later in Wireshark, without cluttering your terminal with live output.",
+    q: "Which command correctly saves the raw capture to a file for later analysis?",
+    choices: ["tcpdump -i eth0 -w capture.pcap", "tcpdump -i eth0 -r capture.pcap", "tcpdump -i eth0 > /dev/null", "wireshark -w capture.pcap"],
+    correct: 0,
+    explain: "<b>-w</b> writes the raw captured packets to a file; <b>-r</b> is used later to read a saved capture back, not create one."
   },
 
   // ---- MEDIUM (7) ----
   {
     difficulty: "MEDIUM",
-    q: "Which nmap flag performs a TCP SYN scan (often called a 'stealth' scan)?",
-    choices: ["-sT", "-sS", "-sU", "-sV"],
-    correct: 1,
-    explain: "<b>-sS</b> sends a SYN and never completes the three-way handshake, making it faster and less likely to be logged by simple applications than a full connect scan (-sT)."
-  },
-  {
-    difficulty: "MEDIUM",
-    q: "Which technique is used to redirect local traffic to an attacker by falsifying IP-to-MAC mappings on a LAN?",
-    choices: ["DNS zone transfer", "ARP spoofing", "SQL injection", "Buffer overflow"],
-    correct: 1,
-    explain: "<b>ARP spoofing</b> (e.g. via arpspoof or ettercap) poisons ARP caches so victim traffic is routed through the attacker's machine for a man-in-the-middle position."
-  },
-  {
-    difficulty: "MEDIUM",
-    q: "What does proxychains primarily let a pentester do?",
-    choices: ["Compress captured packets", "Force tool traffic through a chain of proxies (e.g. for pivoting)", "Encrypt files at rest", "Automatically patch vulnerabilities"],
-    correct: 1,
-    explain: "<b>proxychains</b> wraps a command so its network traffic is routed through one or more configured proxies — commonly used to pivot into internal networks via a SOCKS proxy."
-  },
-  {
-    difficulty: "MEDIUM",
-    q: "Which tcpdump expression captures only traffic on TCP port 443?",
-    choices: ["tcpdump tcp port 443", "tcpdump -i eth0 --port=443", "tcpdump grep 443", "tcpdump -f 443"],
+    scenario: "Midway through an assessment, your full connect scans start tripping the client's IDS. You still need to enumerate TCP ports on a sensitive Linux target without generating as much noise.",
+    q: "Which nmap approach best balances stealth and effectiveness here?",
+    choices: ["nmap -sS -T2 --scan-delay 1s target", "nmap -sT -T5 --min-rate 10000 target", "nmap -A -v target", "nmap --script vuln -T5 target"],
     correct: 0,
-    explain: "tcpdump uses BPF filter syntax, so <b>tcpdump tcp port 443</b> restricts the capture to TCP traffic on that port."
+    explain: "A <b>SYN scan (-sS)</b> with a slower timing template and added delay reduces the volume and pattern of traffic that trips IDS thresholds, compared to a fast full-connect scan."
   },
   {
     difficulty: "MEDIUM",
-    q: "Which ssh flag sets up local port forwarding?",
-    choices: ["-D", "-R", "-L", "-J"],
-    correct: 2,
-    explain: "<b>-L</b> forwards a local port to a destination reachable from the remote host. <b>-R</b> is remote forwarding and <b>-D</b> creates a dynamic SOCKS proxy."
-  },
-  {
-    difficulty: "MEDIUM",
-    q: "Which tool is commonly used to poison LLMNR/NBT-NS requests to harvest Windows credential hashes from a Linux attack box?",
-    choices: ["Responder", "Nikto", "John the Ripper", "Hydra"],
+    scenario: "While sniffing on an internal LAN, you notice two different hosts suddenly show the same MAC address in your ARP table shortly after starting your capture.",
+    q: "What does this pattern most likely indicate?",
+    choices: ["An ARP spoofing / MITM attack redirecting traffic through one host", "A routine DHCP lease renewal", "Normal switch behavior with no security relevance", "DNS cache poisoning on the client"],
     correct: 0,
-    explain: "<b>Responder</b> listens for and answers broadcast name-resolution requests (LLMNR/NBT-NS/mDNS), tricking hosts into sending authentication hashes to the attacker."
+    explain: "One MAC address suddenly claiming multiple IPs is the classic signature of <b>ARP cache poisoning</b>, used to position an attacker for a man-in-the-middle."
   },
   {
     difficulty: "MEDIUM",
-    q: "Which nmap flag attempts to fingerprint a target's operating system?",
-    choices: ["-A", "-O", "-p-", "-T4"],
-    correct: 1,
-    explain: "<b>-O</b> enables OS detection based on TCP/IP stack behavior. -A is an aggregate flag that includes OS detection plus other checks."
+    scenario: "You've compromised a Linux host that can reach an internal 10.50.0.0/24 subnet, but your Kali box has no route to it. You want to run nmap from Kali against that subnet through the compromised host.",
+    q: "Which setup lets your existing tools on Kali reach that subnet through the compromised host?",
+    choices: ["Set up ssh -D on the compromised host, then run nmap through proxychains on Kali", "Run nmap directly from Kali with no changes", "Use netcat to forward ICMP packets only", "Install nmap on the compromised host and only review results manually, with no pivot"],
+    correct: 0,
+    explain: "<b>ssh -D</b> creates a dynamic SOCKS proxy on the compromised host; wrapping nmap with <b>proxychains</b> on Kali routes its traffic through that tunnel into the otherwise unreachable subnet."
+  },
+  {
+    difficulty: "MEDIUM",
+    scenario: "During a capture review, you notice a steady stream of retransmitted segments toward a web app running on port 8443.",
+    q: "Which Wireshark display filter isolates exactly those retransmitted packets so you can confirm packet loss is the cause?",
+    choices: ["tcp.analysis.retransmission", "http.request.method==\"GET\"", "dns.qry.name contains \"target\"", "ip.ttl==64"],
+    correct: 0,
+    explain: "<b>tcp.analysis.retransmission</b> uses Wireshark's built-in TCP analysis to surface segments it has flagged as retransmitted."
+  },
+  {
+    difficulty: "MEDIUM",
+    scenario: "As part of a segmentation test, you need traffic to route from a DMZ segment into an internal segment through a compromised Linux box with two network interfaces. IP forwarding is already enabled on that box.",
+    q: "Which additional configuration is required for that box to actually pass the traffic between interfaces?",
+    choices: ["Allow the traffic in the FORWARD chain between both interfaces", "Only edit the INPUT chain", "Only edit the OUTPUT chain", "Flush all iptables rules and stop there"],
+    correct: 0,
+    explain: "The <b>FORWARD</b> chain governs traffic that is routed through a Linux box rather than delivered to or generated by local processes — it must explicitly allow the traffic for routing to work."
+  },
+  {
+    difficulty: "MEDIUM",
+    scenario: "You capture a Windows workstation on the LAN broadcasting a name-resolution request for a mistyped internal file share.",
+    q: "Which technique lets you capture the resulting authentication attempt from a Linux attack box?",
+    choices: ["Run Responder to poison the LLMNR/NBT-NS request and capture the hash", "Run nmap -sV against the workstation", "Query the hostname with dig", "Filter the traffic with tcpdump using only an ARP filter"],
+    correct: 0,
+    explain: "<b>Responder</b> listens for and answers broadcast name-resolution protocols like LLMNR and NBT-NS, tricking the host into authenticating to the attacker and revealing a crackable hash."
+  },
+  {
+    difficulty: "MEDIUM",
+    scenario: "You need to enumerate SMB shares on a Windows server as a first pass, without attempting any exploitation or brute-forcing that could disrupt production.",
+    q: "Which approach fits that requirement?",
+    choices: ["nmap --script smb-enum-shares -p 445 target", "nmap --script smb-vuln-ms17-010 --script-args unsafe=1 target", "hydra -L users -P passwords smb://target", "msfconsole exploit/windows/smb/ms17_010_eternalblue"],
+    correct: 0,
+    explain: "<b>smb-enum-shares</b> is a discovery-category NSE script — it lists available shares without brute-forcing credentials or attempting exploitation."
   },
 
   // ---- HARD (6) ----
   {
     difficulty: "HARD",
-    q: "In an SSH pivoting scenario, what kind of proxy does the '-D' dynamic port forwarding option create?",
-    choices: ["A transparent HTTP proxy", "A SOCKS proxy", "A DNS relay", "A VPN tunnel"],
-    correct: 1,
-    explain: "<b>ssh -D</b> spins up a local <b>SOCKS proxy</b>, letting tools like proxychains route arbitrary traffic through the SSH connection into a network the attacker can't reach directly."
-  },
-  {
-    difficulty: "HARD",
-    q: "What is the general term for using a compromised, dual-homed host to route attack traffic into an otherwise unreachable internal segment?",
-    choices: ["Pivoting", "Fuzzing", "Spidering", "Sandboxing"],
+    scenario: "You have a foothold on a dual-homed Linux host bridging a DMZ and an internal segment, and you want all of your proxychains-wrapped tools — not just one port — to reach hosts in that internal segment.",
+    q: "Which setup achieves this general-purpose pivot?",
+    choices: ["ssh -D 1080 user@dmz-host, then point proxychains at socks5 127.0.0.1 1080", "ssh -L 1080:internal-host:445 user@dmz-host only", "ssh -R 1080 user@dmz-host", "scp tools to the dmz-host and only run them locally there"],
     correct: 0,
-    explain: "<b>Pivoting</b> uses a foothold host as a relay, letting the attacker reach network segments that aren't directly routable from their own machine."
+    explain: "<b>-D</b> creates a dynamic SOCKS proxy that any proxychains-wrapped tool can route arbitrary traffic through, unlike <b>-L</b> which only forwards one fixed destination/port."
   },
   {
     difficulty: "HARD",
-    q: "Which category of nmap NSE (Nmap Scripting Engine) scripts would you use to enumerate SMB shares on a Windows host?",
-    choices: ["vuln scripts only", "discovery / smb-enum-* scripts", "brute scripts only", "dos scripts only"],
-    correct: 1,
-    explain: "Scripts such as <b>smb-enum-shares</b> and <b>smb-enum-users</b> fall under the discovery category and query SMB to list shares, sessions, and users without exploiting anything."
+    scenario: "While mapping the path to a target, hop 7 in your trace consistently fails to respond while hops 6 and 8 both reply normally.",
+    q: "What's the most defensible interpretation of this pattern?",
+    choices: ["Hop 7's device is likely filtering or rate-limiting the probe traffic, not necessarily offline", "Hop 7 is definitely down", "The network doesn't exist past hop 6", "Your local NIC is misconfigured"],
+    correct: 0,
+    explain: "Many routers and firewalls deprioritize or drop the ICMP/UDP probes traceroute relies on, or rate-limit their responses, causing a 'silent' hop even though the device is up and still forwarding traffic."
   },
   {
     difficulty: "HARD",
-    q: "In a traceroute, the TTL of each outgoing probe is incremented by one per hop. What causes each intermediate router to respond?",
-    choices: ["The router replies to any UDP packet automatically", "The TTL reaches zero at that router, triggering an ICMP Time Exceeded message", "The router forwards the packet back to sender by design", "DNS resolution fails at that hop"],
-    correct: 1,
-    explain: "Each router decrements TTL by 1; when it hits <b>0</b>, the router drops the packet and returns an <b>ICMP Time Exceeded</b> message, revealing itself as a hop."
+    scenario: "You're enumerating an internal Windows domain during business hours and want to avoid account lockouts or service crashes on production systems.",
+    q: "Which categories of nmap NSE scripts should you explicitly avoid running against production in this scenario?",
+    choices: ["brute and vuln/dos categories", "discovery scripts only", "default scripts only", "safe scripts only"],
+    correct: 0,
+    explain: "<b>brute</b>-force scripts risk account lockouts, and <b>vuln/dos</b> scripts risk crashing services — both carry real operational risk against live production systems, unlike lower-risk discovery/safe scripts."
   },
   {
     difficulty: "HARD",
-    q: "On a Linux box configured to route traffic between two network interfaces, which iptables chain governs traffic that is neither destined for nor originated by the box itself?",
-    choices: ["INPUT", "OUTPUT", "FORWARD", "PREROUTING only"],
-    correct: 2,
-    explain: "The <b>FORWARD</b> chain handles packets being routed through the host rather than delivered to or sent from local processes — critical when the box is set up as a router or pivot point."
+    scenario: "On a compromised Linux pivot box, you've enabled ip_forward and added FORWARD rules allowing traffic between eth0 (DMZ) and eth1 (internal). Pivoted hosts still can't reach the internal subnet.",
+    q: "What's the most likely remaining misconfiguration?",
+    choices: ["A missing return route on the internal subnet's gateway back to the DMZ (asymmetric routing)", "SSH is using the wrong port", "Wireshark isn't capturing on the pivot box", "nmap isn't installed on the pivot box"],
+    correct: 0,
+    explain: "Routing has to work in both directions — if the internal gateway has no route back toward the DMZ segment, replies never make it back through the pivot even though forwarding rules are correct."
   },
   {
     difficulty: "HARD",
-    q: "Which Wireshark display filter isolates packets that TCP has flagged as retransmissions?",
-    choices: ["tcp.flags.syn == 1", "tcp.analysis.retransmission", "http.request.method == \"GET\"", "ip.addr == 10.0.0.1"],
-    correct: 1,
-    explain: "<b>tcp.analysis.retransmission</b> uses Wireshark's built-in TCP analysis to surface segments the stack believes were retransmitted, often a sign of packet loss or congestion."
+    scenario: "Reviewing a capture, you see a short burst of ARP requests from many different spoofed source MAC addresses, each requesting a different IP on the same LAN segment.",
+    q: "What attack does this traffic pattern most likely represent?",
+    choices: ["A MAC flooding / CAM table overflow attack aimed at forcing the switch into hub mode", "A normal DHCP broadcast storm", "A legitimate ARP cache refresh cycle", "A DNS amplification attack"],
+    correct: 0,
+    explain: "Flooding a switch with many spoofed source MACs is a classic technique to overflow its CAM table, causing it to fail open and broadcast traffic to every port instead of switching normally."
+  },
+  {
+    difficulty: "HARD",
+    scenario: "You want to test whether a target's edge firewall strips ICMP but still forwards other manually crafted probe types, to map its filtering behavior more precisely than a standard ping would show.",
+    q: "Which tool is best suited for hand-crafting and sending custom TCP/UDP/ICMP packets for this test?",
+    choices: ["hping3", "grep", "chmod", "useradd"],
+    correct: 0,
+    explain: "<b>hping3</b> lets you manually construct packets across protocols with custom flags, letting you probe firewall behavior far more precisely than a standard ping or traceroute."
   }
 ];
 
 let current = 0;
-let score = 0;
-let locked = false;
-let history = []; // {difficulty, correct: bool}
+let answers = new Array(QUESTIONS.length).fill(null);
+let submitted = false;
 
 const diffColor = { LOW: "var(--low)", MEDIUM: "var(--med)", HARD: "var(--hard)" };
 const body = document.getElementById("termBody");
 
 function renderQuestion(){
-  locked = false;
   const item = QUESTIONS[current];
   const dotEls = [document.getElementById("dot1"), document.getElementById("dot2"), document.getElementById("dot3")];
   dotEls.forEach(d => d.classList.remove("active"));
@@ -435,82 +519,81 @@ function renderQuestion(){
 
   const packetsHTML = QUESTIONS.map((_, i) => {
     let cls = "packet";
-    if (i < history.length) cls += history[i].correct ? " sent" : " wrong";
+    if (i === current) cls += " current";
+    else if (answers[i] !== null) cls += " answered";
     return `<div class="${cls}"></div>`;
   }).join("");
 
-  const choicesHTML = item.choices.map((c, i) =>
-    `<button class="choice" data-i="${i}"><span class="tag">[${String.fromCharCode(65+i)}]</span><span>${c}</span></button>`
-  ).join("");
+  const choicesHTML = item.choices.map((c, i) => {
+    const sel = answers[current] === i ? " selected" : "";
+    return `<button class="choice${sel}" data-i="${i}"><span class="tag">[${String.fromCharCode(65+i)}]</span><span>${c}</span></button>`;
+  }).join("");
+
+  const answeredCount = answers.filter(a => a !== null).length;
+  const isLast = current === QUESTIONS.length - 1;
 
   body.innerHTML = `
     <div class="hop-row">
-      <span>hop ${current+1}/${QUESTIONS.length} — recon target</span>
+      <span>question ${current+1}/${QUESTIONS.length}</span>
       <span class="diff-tag ${item.difficulty}">${item.difficulty}</span>
     </div>
     <div class="packets">${packetsHTML}</div>
-    <div class="prompt-line"><span class="path">~/quiz</span> <span class="cmd">$ cat question_${current+1}.txt</span></div>
+    <div class="prompt-line"><span class="path">~/quiz</span> <span class="cmd">$ cat scenario_${current+1}.txt</span></div>
+    <div class="scenario">${item.scenario}</div>
     <h1 class="q">${item.q}</h1>
     <div class="choices">${choicesHTML}</div>
-    <div class="explain" id="explainBox"></div>
     <div class="footer-row">
-      <div class="score-mini">score: <b>${score}</b>/${QUESTIONS.length}</div>
-      <button class="next-btn" id="nextBtn">${current === QUESTIONS.length - 1 ? "view report →" : "next hop →"}</button>
+      <div class="score-mini">answered: <b>${answeredCount}</b>/${QUESTIONS.length}</div>
+      <div class="nav-btns">
+        <button class="btn" id="backBtn" ${current === 0 ? "disabled" : ""}>← back</button>
+        ${isLast
+          ? `<button class="btn submit-btn" id="submitBtn">submit quiz</button>`
+          : `<button class="btn next-btn" id="nextBtn">next →</button>`}
+      </div>
     </div>
   `;
 
   document.querySelectorAll(".choice").forEach(btn => {
-    btn.addEventListener("click", () => selectChoice(parseInt(btn.dataset.i)));
-  });
-  document.getElementById("nextBtn").addEventListener("click", nextQuestion);
-}
-
-function selectChoice(i){
-  if (locked) return;
-  locked = true;
-  const item = QUESTIONS[current];
-  const isCorrect = i === item.correct;
-  if (isCorrect) score++;
-  history[current] = { difficulty: item.difficulty, correct: isCorrect };
-
-  document.querySelectorAll(".choice").forEach((btn, idx) => {
-    btn.classList.add("locked");
-    if (idx === item.correct) btn.classList.add("correct");
-    else if (idx === i) btn.classList.add("incorrect");
-    else btn.classList.add("dim");
+    btn.addEventListener("click", () => {
+      answers[current] = parseInt(btn.dataset.i);
+      renderQuestion();
+    });
   });
 
-  const explainBox = document.getElementById("explainBox");
-  explainBox.innerHTML = (isCorrect ? "✔ correct — " : "✘ incorrect — ") + item.explain;
-  explainBox.classList.add("show");
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) backBtn.addEventListener("click", () => { current--; renderQuestion(); });
 
-  document.querySelector(`.packet:nth-child(${current+1})`).classList.add(isCorrect ? "sent" : "wrong");
-  document.getElementById("nextBtn").classList.add("show");
-  document.querySelector(".score-mini").innerHTML = `score: <b>${score}</b>/${QUESTIONS.length}`;
-}
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) nextBtn.addEventListener("click", () => { current++; renderQuestion(); });
 
-function nextQuestion(){
-  if (current < QUESTIONS.length - 1){
-    current++;
-    renderQuestion();
-  } else {
+  const submitBtn = document.getElementById("submitBtn");
+  if (submitBtn) submitBtn.addEventListener("click", () => {
+    const unanswered = answers.filter(a => a === null).length;
+    if (unanswered > 0){
+      if (!confirm(`${unanswered} question(s) unanswered. Submit anyway?`)) return;
+    }
+    submitted = true;
     renderResults();
-  }
+  });
 }
 
 function renderResults(){
-  const byDiff = { LOW: [0,0], MEDIUM: [0,0], HARD: [0,0] }; // [correct, total]
-  history.forEach(h => {
-    byDiff[h.difficulty][1]++;
-    if (h.correct) byDiff[h.difficulty][0]++;
+  let score = 0;
+  const byDiff = { LOW: [0,0], MEDIUM: [0,0], HARD: [0,0] };
+  QUESTIONS.forEach((item, i) => {
+    byDiff[item.difficulty][1]++;
+    if (answers[i] === item.correct){
+      score++;
+      byDiff[item.difficulty][0]++;
+    }
   });
 
   const pct = Math.round((score / QUESTIONS.length) * 100);
   let verdict;
-  if (pct >= 90) verdict = "Root-level recon. You read traffic like second nature — ready for real engagements.";
-  else if (pct >= 70) verdict = "Solid grasp of the fundamentals. A little more time with pivoting and iptables will round you out.";
-  else if (pct >= 50) verdict = "You know your way around the basics — revisit scanning and traffic analysis before your next lab.";
-  else verdict = "Good starting point. Spend time in a lab with nmap, tcpdump, and SSH tunneling, then run this again.";
+  if (pct >= 90) verdict = "Root-level recon. You read real-world scenarios like second nature — ready for live engagements.";
+  else if (pct >= 70) verdict = "Solid grasp of practical fundamentals. A little more time with pivoting and firewall/routing edge cases will round you out.";
+  else if (pct >= 50) verdict = "You know your way around the basics — revisit scanning strategy and traffic analysis before your next lab.";
+  else verdict = "Good starting point. Spend time in a lab with nmap, tcpdump, and SSH tunneling scenarios, then run this again.";
 
   document.getElementById("dot1").classList.remove("active");
   document.getElementById("dot2").classList.remove("active");
@@ -527,19 +610,48 @@ function renderResults(){
       </div>`;
   }).join("");
 
+  const reviewHTML = QUESTIONS.map((item, i) => {
+    const userAns = answers[i];
+    const isCorrect = userAns === item.correct;
+    const userLabel = userAns === null ? "— no answer —" : `[${String.fromCharCode(65+userAns)}] ${item.choices[userAns]}`;
+    return `
+      <div class="review-item">
+        <div class="rhead">
+          <span>Q${i+1} · <span class="diff-tag ${item.difficulty}">${item.difficulty}</span></span>
+          <span class="${isCorrect ? 'status-ok' : 'status-bad'}">${isCorrect ? '✔ correct' : '✘ incorrect'}</span>
+        </div>
+        <div class="rq">${item.q}</div>
+        <div class="ryour ${isCorrect ? 'status-ok' : 'status-bad'}">Your answer: ${userLabel}</div>
+        ${isCorrect ? "" : `<div class="rcorrect status-ok">Correct answer: [${String.fromCharCode(65+item.correct)}] ${item.choices[item.correct]}</div>`}
+        <div class="rexplain">${item.explain}</div>
+      </div>`;
+  }).join("");
+
   body.innerHTML = `
     <div class="results">
       <div class="prompt-line"><span class="path">~/quiz</span> <span class="cmd">$ ./generate_report.sh --final</span></div>
       <h2>scan complete</h2>
-      <div class="sub">Linux Network Pentesting — Recon Quiz</div>
+      <div class="sub">INSTANT-SW-Quiz — Linux Network Pentesting Scenarios</div>
       <div class="bigscore">${score}<span> / ${QUESTIONS.length} (${pct}%)</span></div>
       <div class="breakdown">${rowsHTML}</div>
       <div class="verdict">${verdict}</div>
+      <button class="review-toggle" id="reviewToggle">$ ./quiz --show-review</button>
+      <div class="review-list" id="reviewList">${reviewHTML}</div>
       <button class="restart-btn" id="restartBtn">$ ./quiz --restart</button>
     </div>
   `;
+
+  document.getElementById("reviewToggle").addEventListener("click", () => {
+    const list = document.getElementById("reviewList");
+    const btn = document.getElementById("reviewToggle");
+    const isShown = list.classList.toggle("show");
+    btn.textContent = isShown ? "$ ./quiz --hide-review" : "$ ./quiz --show-review";
+  });
+
   document.getElementById("restartBtn").addEventListener("click", () => {
-    current = 0; score = 0; history = [];
+    current = 0;
+    answers = new Array(QUESTIONS.length).fill(null);
+    submitted = false;
     renderQuestion();
   });
 }
