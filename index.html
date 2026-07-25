@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INSTANT-SW-Quiz — Linux Network Pentesting</title>
+<title>INSTANT-SAT-Quiz — Linux Fundamentals & Cybersecurity</title>
 <style>
   :root{
     --bg: #0a0e10;
@@ -328,248 +328,192 @@
     <div class="dot d1" id="dot1"></div>
     <div class="dot d2" id="dot2"></div>
     <div class="dot d3" id="dot3"></div>
-    <div class="term-title"><b>INSTANT-SW-Quiz</b> — root@kali: ~/network-pentest-scenarios</div>
+    <div class="term-title"><b>INSTANT-SW-Quiz</b> — root@kali: ~/linux-fundamentals</div>
   </div>
   <div class="term-body" id="termBody"></div>
 </div>
 
 <script>
-// Deduplicated question bank. Each entry keeps a single canonical
-// phrasing — near-duplicate scenarios/questions from the original
-// bank (e.g. multiple "whoami", "/etc/os-release", "ssh -p 2222",
-// and "enumerate before exploiting SMB/FTP" items) were merged into
-// one representative question each.
 const QUESTIONS_RAW = [
-  // ---- LOW ----
   {
     difficulty: "LOW",
-    scenario: "You've just been authorized to test the 10.10.10.0/24 range and need a fast first pass to see which hosts are even alive before committing to deeper scans.",
-    q: "Which nmap command gives you the quickest list of live hosts without scanning any ports yet?",
-    choices: ["nmap -sn 10.10.10.0/24", "nmap -sS -p- 10.10.10.0/24", "nmap --script vuln 10.10.10.0/24", "nmap -sU -p 1-65535 10.10.10.0/24"],
+    scenario: "You have just opened the Linux terminal and want to know your current location in the file system.",
+    q: "Which command displays the current working directory?",
+    choices: ["pwd","ls","cd","whoami"],
     correct: 0,
-    explain: "<b>-sn</b> disables port scanning and performs host discovery only (ping sweep), making it ideal for a fast initial pass across a whole subnet."
+    explain: "<b>pwd</b> prints the current working directory."
   },
   {
     difficulty: "LOW",
-    scenario: "A client hands you a single IP and says 'we don't know what's running on it — check everything.'",
-    q: "Which nmap flag ensures you scan the full TCP port range instead of just the common ones?",
-    choices: ["-p-", "-F", "--top-ports 100", "-T4 only"],
+    scenario: "You want to see the files and folders inside the current directory.",
+    q: "Which command lists files and directories?",
+    choices: ["ls","pwd","mkdir","cat"],
     correct: 0,
-    explain: "<b>-p-</b> tells nmap to scan all 65,535 TCP ports instead of the default top-1000 or the fast subset used by -F."
+    explain: "<b>ls</b> lists files and directories."
   },
   {
     difficulty: "LOW",
-    scenario: "During a web application assessment, you discover port 8080 open with an unknown HTTP service.",
-    q: "What should be your next action?",
-    choices: [
-      "Identify the service version and inspect the web application manually",
-      "Launch Metasploit immediately",
-      "Run Hydra against the login page",
-      "Close the port using iptables"
-    ],
+    scenario: "You need to move into another directory.",
+    q: "Which command changes the current directory?",
+    choices: ["cd","pwd","touch","mv"],
     correct: 0,
-    explain: "Enumeration always comes before exploitation."
+    explain: "<b>cd</b> changes your current directory."
   },
   {
     difficulty: "LOW",
-    scenario: "During enumeration you find an internal server running SSH on a non-standard port, 2222, instead of the default.",
-    q: "Which command lets you connect to test credentials against that service?",
-    choices: ["ssh -p 2222 user@target", "ssh -L 2222 user@target", "ssh -o Port=22 user@target", "ssh user@target:2222"],
+    scenario: "You want to create an empty file called notes.txt.",
+    q: "Which command creates an empty file?",
+    choices: ["touch","mkdir","rm","cp"],
     correct: 0,
-    explain: "The <b>-p</b> flag tells the ssh client which TCP port to connect to on the remote host."
+    explain: "<b>touch</b> creates an empty file if it doesn't exist."
   },
   {
     difficulty: "LOW",
-    scenario: "You are performing an internal penetration test. The client reports that an application is hosted on one of 50 Windows servers, but they don't know which one. ICMP is blocked across the network.",
-    q: "What would be your first enumeration step?",
-    choices: [
-      "Run a TCP SYN scan against common ports such as 80, 443, 445 across the subnet",
-      "Use ping sweep to identify live hosts",
-      "Run vulnerability scripts against the whole subnet immediately",
-      "Attempt SMB brute force on every host"
-    ],
+    scenario: "You need a new folder for your project.",
+    q: "Which command creates a new directory?",
+    choices: ["mkdir","touch","ls","cat"],
     correct: 0,
-    explain: "Since ICMP is blocked, a TCP-based host discovery or SYN scan is more reliable than relying on ping."
+    explain: "<b>mkdir</b> creates a new directory."
   },
   {
     difficulty: "LOW",
-    scenario: "You are performing an internal network assessment. A Linux server is responding on port 80, but before interacting with the web application, you need to identify exactly what service and version are running.",
-    q: "What is the best next step?",
-    choices: [
-      "Run a service version scan using Nmap (-sV)",
-      "Immediately launch Metasploit against the server",
-      "Start a password brute-force attack",
-      "Assume the service is Apache because port 80 is open"
-    ],
+    scenario: "A file is no longer needed.",
+    q: "Which command removes a file?",
+    choices: ["rm","mv","cp","cat"],
     correct: 0,
-    explain: "Before attempting exploitation, always identify the running service and version. Service enumeration helps determine the correct attack surface and avoids unnecessary assumptions."
+    explain: "<b>rm</b> removes files."
   },
   {
     difficulty: "LOW",
-    scenario: "While reviewing the results of a network scan, you discover that a Linux server has ports 22, 80, and 443 open. The client only requested a non-intrusive assessment at this stage.",
-    q: "What should you do next?",
-    choices: [
-      "Enumerate the exposed services and collect version information",
-      "Attempt SSH brute-force to check password strength",
-      "Run all available vulnerability scripts immediately",
-      "Ignore the findings because only three ports are open"
-    ],
+    scenario: "You are navigating directories.",
+    q: "What does '..' represent?",
+    choices: ["Parent directory","Current directory","Root directory","Home directory"],
     correct: 0,
-    explain: "The first phase of a penetration test is enumeration. Collecting service and version information allows you to understand the target before moving to any intrusive actions."
+    explain: "<b>..</b> refers to the parent directory."
   },
   {
     difficulty: "LOW",
-    scenario: "You have SSH access to a Linux server during an internal assessment. Before doing anything else, you want to identify which Linux distribution and version you're working on.",
-    q: "Which command would you use first?",
-    choices: ["cat /etc/os-release", "whoami", "pwd", "history"],
+    scenario: "You are already inside a directory.",
+    q: "What does '.' represent?",
+    choices: ["Current directory","Parent directory","Home directory","Root directory"],
     correct: 0,
-    explain: "/etc/os-release provides reliable operating system information including distribution name and version."
+    explain: "<b>.</b> refers to the current directory."
   },
   {
     difficulty: "LOW",
-    scenario: "You uploaded a reconnaissance script to a Linux server, but it returns 'Permission denied' when you try to execute it.",
-    q: "What should you check first?",
-    choices: [
-      "Whether the file has execute permissions",
-      "Whether Apache is running",
-      "Whether SSH is enabled",
-      "Whether the firewall is blocking the script"
-    ],
+    scenario: "You want to display the contents of a text file.",
+    q: "Which command displays the contents of a file?",
+    choices: ["cat","pwd","rm","mv"],
     correct: 0,
-    explain: "The most common cause is that the execute permission bit is not set."
+    explain: "<b>cat</b> displays file contents."
   },
   {
     difficulty: "LOW",
-    scenario: "During enumeration, you need to quickly identify which user account you're currently operating as.",
-    q: "Which command gives you that information?",
-    choices: ["whoami", "id -u 0", "hostname", "pwd"],
+    scenario: "You want to duplicate a file.",
+    q: "Which command copies a file?",
+    choices: ["cp","mv","rm","touch"],
     correct: 0,
-    explain: "whoami prints the effective username of the current session."
+    explain: "<b>cp</b> copies files."
   },
   {
     difficulty: "LOW",
-    scenario: "You discover that port 445 is open on a Windows server during enumeration.",
-    q: "Which service is most likely running?",
-    choices: ["SMB", "FTP", "DNS", "MySQL"],
+    scenario: "You want to rename a file.",
+    q: "Which command moves or renames a file?",
+    choices: ["mv","cp","rm","cat"],
     correct: 0,
-    explain: "TCP port 445 is commonly used by Microsoft's SMB service."
+    explain: "<b>mv</b> moves or renames files."
   },
   {
     difficulty: "LOW",
-    scenario: "You find that TCP port 3306 is open on an internal server.",
-    q: "Which service is typically running on this port?",
-    choices: ["MySQL", "SSH", "SMB", "SMTP"],
+    scenario: "You need more details about files.",
+    q: "Which command shows detailed file information?",
+    choices: ["ls -l","pwd","touch","cd"],
     correct: 0,
-    explain: "3306 is the default port for MySQL."
-  },
-  {
-    difficulty: "LOW",
-    scenario: "During an authorized penetration test, the client asks you to verify whether weak SSH passwords are being used.",
-    q: "Which tool is commonly used for an online password attack against SSH?",
-    choices: ["Hydra", "Nmap", "tcpdump", "Wireshark"],
-    correct: 0,
-    explain: "Hydra is commonly used to test login services such as SSH, FTP, and HTTP during authorized security assessments."
-  },
-
-  // ---- MEDIUM ----
-  {
-    difficulty: "MEDIUM",
-    scenario: "Midway through an assessment, your full connect scans start tripping the client's IDS. You still need to enumerate TCP ports on a sensitive Linux target without generating as much noise.",
-    q: "Which nmap approach best balances stealth and effectiveness here?",
-    choices: ["nmap -sS -T2 --scan-delay 1s target", "nmap -sT -T5 --min-rate 10000 target", "nmap -A -v target", "nmap --script vuln -T5 target"],
-    correct: 0,
-    explain: "A <b>SYN scan (-sS)</b> with a slower timing template and added delay reduces the volume and pattern of traffic that trips IDS thresholds, compared to a fast full-connect scan."
+    explain: "<b>ls -l</b> displays detailed information including permissions."
   },
   {
     difficulty: "MEDIUM",
-    scenario: "You need to enumerate SMB shares on a Windows server as a first pass, without attempting any exploitation or brute-forcing that could disrupt production.",
-    q: "Which approach fits that requirement?",
-    choices: ["nmap --script smb-enum-shares -p 445 target", "nmap --script smb-vuln-ms17-010 --script-args unsafe=1 target", "hydra -L users -P passwords smb://target", "msfconsole exploit/windows/smb/ms17_010_eternalblue"],
+    scenario: "You are checking Linux file permissions.",
+    q: "What do the letters 'rwx' represent?",
+    choices: ["Read, Write, Execute","Run, Work, Exit","Read, Work, Execute","Rename, Write, Execute"],
     correct: 0,
-    explain: "<b>smb-enum-shares</b> is a discovery-category NSE script — it lists available shares without brute-forcing credentials or attempting exploitation."
+    explain: "<b>r</b>=Read, <b>w</b>=Write, <b>x</b>=Execute."
   },
   {
     difficulty: "MEDIUM",
-    scenario: "An FTP server allows anonymous login. After connecting successfully, you notice several directories and files.",
-    q: "What should you do first?",
+    scenario: "You need to modify the permissions of a file.",
+    q: "Which command changes file permissions?",
+    choices: ["chmod","chown","ls","rm"],
+    correct: 0,
+    explain: "<b>chmod</b> changes file permissions."
+  },
+  {
+    difficulty: "MEDIUM",
+    scenario: "A file has permission number 7.",
+    q: "What does permission 7 mean?",
+    choices: ["Read + Write + Execute","Read only","Write only","Read + Execute"],
+    correct: 0,
+    explain: "Permission <b>7 = rwx</b>."
+  },
+  {
+    difficulty: "MEDIUM",
+    scenario: "You are learning the Linux file system.",
+    q: "Which symbol represents the root directory?",
+    choices: ["/","~",".",".."],
+    correct: 0,
+    explain: "<b>/</b> is the root directory."
+  },
+  {
+    difficulty: "LOW",
+    scenario: "You are starting your cybersecurity journey.",
+    q: "What is the main purpose of Cybersecurity?",
     choices: [
-      "Review accessible files and directory permissions for sensitive information",
-      "Upload a reverse shell immediately",
-      "Launch a denial-of-service attack",
-      "Assume the server is vulnerable and stop enumeration"
+      "Protect systems, networks, and data",
+      "Speed up computers",
+      "Install software",
+      "Increase internet speed"
     ],
     correct: 0,
-    explain: "Anonymous FTP access often exposes backups, configuration files, or credentials. Enumeration comes before exploitation."
+    explain: "Cybersecurity focuses on protecting systems, networks, and information."
   },
   {
     difficulty: "MEDIUM",
-    scenario: "You obtained valid SSH credentials during an internal assessment, but the client requested minimal impact on production systems.",
-    q: "What is the best initial action after logging in?",
+    scenario: "You are creating an account on an online service.",
+    q: "Which of the following is the strongest password?",
     choices: [
-      "Enumerate the system, users, sudo permissions, and running services",
-      "Immediately attempt privilege escalation exploits",
-      "Install additional penetration testing tools",
-      "Restart SSH to verify persistence"
+      "M0h@b!2026",
+      "123456",
+      "password",
+      "mohamed123"
     ],
     correct: 0,
-    explain: "A proper assessment starts with understanding the environment before attempting privilege escalation."
+    explain: "Strong passwords use uppercase, lowercase, numbers, and special characters."
   },
   {
     difficulty: "MEDIUM",
-    scenario: "A MySQL service is exposed on the internal network. You have valid database credentials but no information about the stored data.",
-    q: "What should you do first after connecting?",
+    scenario: "A hacker keeps trying many passwords until one works.",
+    q: "What is this attack called?",
     choices: [
-      "Enumerate databases, tables, and user privileges",
-      "Delete temporary tables",
-      "Run SQL injection payloads against the server",
-      "Restart the MySQL service"
+      "Brute Force",
+      "Phishing",
+      "SQL Injection",
+      "DDoS"
     ],
     correct: 0,
-    explain: "Database enumeration helps identify sensitive data, application databases, and excessive user privileges."
-  },
-  {
-    difficulty: "MEDIUM",
-    scenario: "While enumerating a compromised Linux server, you want to identify services that are currently listening for incoming network connections.",
-    q: "Which command provides this information?",
-    choices: ["ss -tulnp", "ls -la", "pwd", "history"],
-    correct: 0,
-    explain: "The 'ss -tulnp' command displays listening TCP/UDP ports along with the associated processes, making it an essential enumeration step."
-  },
-
-  // ---- HARD ----
-  {
-    difficulty: "HARD",
-    scenario: "While sniffing on an internal LAN, you notice two different hosts suddenly show the same MAC address in your ARP table shortly after starting your capture.",
-    q: "What does this pattern most likely indicate?",
-    choices: ["An ARP spoofing / MITM attack redirecting traffic through one host", "A routine DHCP lease renewal", "Normal switch behavior with no security relevance", "DNS cache poisoning on the client"],
-    correct: 0,
-    explain: "One MAC address suddenly claiming multiple IPs is the classic signature of <b>ARP cache poisoning</b>, used to position an attacker for a man-in-the-middle."
+    explain: "A Brute Force attack repeatedly tries many passwords."
   },
   {
     difficulty: "HARD",
-    scenario: "While reviewing a Linux system, you notice that a writable directory appears before /usr/bin in the PATH environment variable.",
-    q: "Why is this important during a security assessment?",
+    scenario: "You are logged into Linux as the root user.",
+    q: "Why should you avoid working as root unless necessary?",
     choices: [
-      "It may allow PATH hijacking if privileged programs execute commands without absolute paths",
-      "It improves system performance",
-      "It prevents privilege escalation",
-      "It disables symbolic links"
+      "You can accidentally damage the system",
+      "It makes Linux slower",
+      "It disables the internet",
+      "It automatically deletes files"
     ],
     correct: 0,
-    explain: "PATH hijacking is possible when privileged programs rely on PATH instead of absolute executable paths."
-  },
-  {
-    difficulty: "HARD",
-    scenario: "You gained access to a Linux server as a low-privileged user. The engagement allows privilege escalation testing if performed safely.",
-    q: "Which check is most valuable early in your enumeration?",
-    choices: [
-      "Look for SUID binaries that may allow privilege escalation",
-      "Delete old log files",
-      "Restart the SSH service",
-      "Flush all iptables rules"
-    ],
-    correct: 0,
-    explain: "Misconfigured SUID binaries are one of the most common Linux privilege escalation vectors."
+    explain: "The root user has full privileges, so mistakes can seriously affect the system."
   }
 ];
 
@@ -683,10 +627,10 @@ function renderResults(){
 
   const pct = Math.round((score / QUESTIONS.length) * 100);
   let verdict;
-  if (pct >= 90) verdict = "Root-level recon. You read real-world scenarios like second nature — ready for live engagements.";
-  else if (pct >= 70) verdict = "Solid grasp of practical fundamentals. A little more time with pivoting and firewall/routing edge cases will round you out.";
-  else if (pct >= 50) verdict = "You know your way around the basics — revisit scanning strategy and traffic analysis before your next lab.";
-  else verdict = "Good starting point. Spend time in a lab with nmap, tcpdump, and SSH tunneling scenarios, then run this again.";
+  if (pct >= 90) verdict = "Excellent grasp of the Linux basics and core security concepts — you're ready to move on to more advanced material.";
+  else if (pct >= 70) verdict = "Solid foundation. Review a few commands you missed and you'll be in great shape.";
+  else if (pct >= 50) verdict = "You know some basics — spend more time practicing core Linux commands and security terms before moving on.";
+  else verdict = "Good starting point. Revisit the fundamentals of Linux navigation and basic security concepts, then run this again.";
 
   document.getElementById("dot1").classList.remove("active");
   document.getElementById("dot2").classList.remove("active");
@@ -724,7 +668,7 @@ function renderResults(){
     <div class="results">
       <div class="prompt-line"><span class="path">~/quiz</span> <span class="cmd">$ ./generate_report.sh --final</span></div>
       <h2>scan complete</h2>
-      <div class="sub">INSTANT-SW-Quiz — Linux Network Pentesting Scenarios</div>
+      <div class="sub">INSTANT-SW-Quiz — Linux Fundamentals & Cybersecurity Basics</div>
       <div class="bigscore">${score}<span> / ${QUESTIONS.length} (${pct}%)</span></div>
       <div class="breakdown">${rowsHTML}</div>
       <div class="verdict">${verdict}</div>
