@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Linux &amp; Network Pentest Quiz — 70 Questions</title>
+<title>INSTANT_Quiz — Linux &amp; Network Penetration Testing</title>
 <meta name="description" content="70-question practice quiz covering Linux fundamentals and network / penetration testing basics: nmap, FTP, SSH, OSI model, ports and protocols.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -68,6 +68,8 @@ h1{
   margin:0 0 14px;
 }
 h1 em{font-style:normal;color:var(--amber)}
+.subtitle{font-family:var(--mono);font-size:clamp(13px,2.6vw,16px);color:var(--cyan);
+  letter-spacing:.06em;margin:0 0 18px}
 .lede{color:var(--muted);max-width:56ch;margin:0 0 30px}
 
 /* ---------- panels ---------- */
@@ -235,8 +237,9 @@ h1 em{font-style:normal;color:var(--amber)}
 
 <!-- ============ START ============ -->
 <section id="start" class="screen on">
-  <p class="prompt"><b>root@lab</b>:<span>~</span># ./quiz.sh --bank linux,network --count 70<span class="cursor"></span></p>
-  <h1>Linux &amp; Network<br><em>Penetration Testing</em> Quiz</h1>
+  <p class="prompt"><b>root@lab</b>:<span>~</span># ./INSTANT_Quiz --bank linux,network --count 70<span class="cursor"></span></p>
+  <h1>INSTANT<em>_Quiz</em></h1>
+  <p class="subtitle">Linux &amp; Network — Penetration Testing</p>
   <p class="lede">70 multiple-choice questions on shell fundamentals, ports and protocols, the OSI model, nmap flags, FTP, SSH and enumeration basics. Answers are explained as you go.</p>
 
   <div class="panel">
@@ -525,9 +528,6 @@ const QUESTIONS = [
 {sec:"network", q:"Which SNMP community string is the classic default for read access?", opts:["<code>admin</code>","<code>public</code>","<code>snmp</code>","<code>default</code>"], a:1,
  e:"<code>public</code> for read and <code>private</code> for write are the defaults. Left unchanged, they expose interfaces, routing tables, running processes and installed software."}
 ];
-
-{sec:"network", q:"Which SNMP community string is the classic default for read access?", opts:["<code>admin</code>","<code>public</code>","<code>snmp</code>","<code>default</code>"], a:1,
- e:"<code>public</code> for read and <code>private</code> for write are the defaults. Left unchanged they expose interfaces, routes, running processes and installed software."}
 
 /* ---------- state ---------- */
 let mode = "all", pool = [], idx = 0, ok = 0, no = 0, locked = false, missed = [];
