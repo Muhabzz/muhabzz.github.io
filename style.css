@@ -517,8 +517,8 @@ h1, h2, h3 { line-height: 1.18; letter-spacing: -0.02em; font-weight: 700; text-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 76px;
-  height: 76px;
+  width: 132px;
+  height: 132px;
   border-radius: 50%;
   overflow: hidden;
   font-size: 1.35rem;
