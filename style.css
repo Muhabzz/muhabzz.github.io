@@ -497,8 +497,9 @@ h1, h2, h3 { line-height: 1.18; letter-spacing: -0.02em; font-weight: 700; text-
 /* ---------- Team ---------- */
 
 .team-grid {
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1.25rem !important;
   width: 100%;
   max-width: 1100px;
@@ -507,7 +508,7 @@ h1, h2, h3 { line-height: 1.18; letter-spacing: -0.02em; font-weight: 700; text-
 
 .member {
   min-width: 0;
-  width: 100%;
+  width: calc((100% - 3 * 1.25rem) / 4);
   text-align: center;
   padding-block: 2rem;
 }
@@ -556,15 +557,15 @@ h1, h2, h3 { line-height: 1.18; letter-spacing: -0.02em; font-weight: 700; text-
 
 /* Tablet */
 @media (max-width: 900px) {
-  .team-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  .member {
+    width: calc((100% - 1.25rem) / 2);
   }
 }
 
 /* Mobile */
 @media (max-width: 600px) {
-  .team-grid {
-    grid-template-columns: 1fr !important;
+  .member {
+    width: 100%;
   }
 }
 /* ---------- Final CTA ---------- */
