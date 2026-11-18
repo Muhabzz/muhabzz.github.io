@@ -648,3 +648,9 @@ h1, h2, h3 { line-height: 1.18; letter-spacing: -0.02em; font-weight: 700; text-
 
 /* ---------- Feature status chips ---------- */
 .feature-status { display: inline-flex; margin-top: 0.9rem; white-space: normal; text-align: left; border-radius: 8px; line-height: 1.5; }
+
+/* "Try the Input Firewall" call-to-action in section 05 */
+.try-cta { margin-top: 2rem; text-align: center; }
+.try-cta h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+.try-cta p { color: var(--muted); max-width: 56ch; margin: 0 auto 1.4rem; }
+.try-cta:hover { transform: none; }
