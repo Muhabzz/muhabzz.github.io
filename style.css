@@ -545,7 +545,7 @@ h1, h2, h3 { line-height: 1.18; letter-spacing: -0.02em; font-weight: 700; text-
 }
 
 /* Ali's photo is a tall portrait with his head near the top — focus the circular crop there */
-.avatar img[src*="ali.jpg"] { object-position: center 18%; }
+.avatar img[src*="ali.jpg"] { object-position: center 8%; }
 
 .member h3 {
   font-size: 1.05rem;
