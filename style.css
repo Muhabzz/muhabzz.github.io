@@ -288,6 +288,7 @@ h1, h2, h3 { line-height: 1.18; letter-spacing: -0.02em; font-weight: 700; text-
 .hero-status svg { width: 17px; height: 17px; color: var(--accent); flex: none; }
 
 .hero-visual { display: flex; justify-content: center; }
+@media (min-width: 960px) { .hero-grid { grid-template-columns: 1.1fr 1fr; } }
 .shield-scene { width: min(100%, 480px); height: auto; overflow: visible; }
 .shield-scene text {
   font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.18em;
